@@ -1,6 +1,6 @@
 # Docker Image for AMS 529
 This Docker image provides the Ubuntu 16.04 environment with X Windows for the class "AMS 529: Finite Element Methods" at Stony Brook University.
-This image runs the lightweight LXDE Windows Manager, and has FEniCS, Python 3.5.2 (with NumPy, SciPy, Pandas and Spyder), Jupyter Notebook, and g++-5.4 preinstalled. The X Windows will display in your web browser in full-screen mode. You can use this Docker image on 64-bit Linux, Mac or Windows.
+This image runs the lightweight LXDE Windows Manager, and has FEniCS 17.1.0, Python 3.5.2 (with NumPy, SciPy, Pandas and Spyder), Jupyter Notebook, and g++-5.4 preinstalled. The X Windows will display in your web browser in full-screen mode. You can use this Docker image on 64-bit Linux, Mac or Windows.
 
 [![Build Status](https://travis-ci.org/compdatasci/ams529-desktop.svg?branch=master)](https://travis-ci.org/compdatasci/ams529-desktop) [![](https://images.microbadger.com/badges/image/ams529/desktop.svg)](https://microbadger.com/images/ams529/desktop)
 

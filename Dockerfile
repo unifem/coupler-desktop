@@ -11,7 +11,8 @@ USER root
 WORKDIR /tmp
 
 # Install system packages
-RUN apt-get update && \
+RUN add-apt-repository ppa:fenics-packages/fenics && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         git \
         gdb \
@@ -21,6 +22,7 @@ RUN apt-get update && \
         liblapack-dev \
         libopenblas-dev \
         libomp-dev \
+        fenics \
         \
         meld && \
     apt-get clean && \
@@ -41,12 +43,10 @@ RUN apt-get update && \
 # Customization for user
 ########################################################
 
-ADD image/etc /etc
-ADD image/bin /usr/local/bin
 ADD image/home $DOCKER_HOME
 
 USER $DOCKER_USER
-ENV  GIT_EDITOR=vi EDITOR=vi
+ENV GIT_EDITOR=vi EDITOR=vi
 RUN echo 'export OMP_NUM_THREADS=$(nproc)' >> $DOCKER_HOME/.profile && \
     sed -i '/octave/ d' $DOCKER_HOME/.config/lxsession/LXDE/autostart && \
     echo "PATH=$DOCKER_HOME/bin:$PATH" >> $DOCKER_HOME/.profile
