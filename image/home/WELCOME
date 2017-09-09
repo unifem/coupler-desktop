@@ -1,0 +1,14 @@
+Welcome to the Docker image for AMS 529: Finite Element Methods!
+
+This image is based on Ubuntu 16.04, with FEniCS, SciPy and Spyder for
+Python 3.5, Jupyter Notebook, and g++-5.4 preinstalled.
+
+Please save your code and data into the ~/shared or ~/project directories.
+The former maps to the current work directory on your computer. The latter
+maps to the Docker data volume named ams529_project on your host.
+
+To use git with ssh authentication, make sure the ssh key on your host
+computer is in bitbucket and github, and then run "ssh-add" in this terminal
+to add your ssh key to the ssh-agent.
+
+Happy computing!
