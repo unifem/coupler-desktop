@@ -34,7 +34,9 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
         libhdf5-mpich-dev \
         libgmp-dev \
         libcln-dev \
-        libmpfr-dev && \
+        libmpfr-dev \
+        \
+        meld && \
     apt-get clean && \
     pip3 install -U \
         numpy \
@@ -99,8 +101,11 @@ RUN FENICS_SRC_DIR=/tmp/src $DOCKER_HOME/bin/fenics-pull && \
 
 USER $DOCKER_USER
 ENV GIT_EDITOR=vi EDITOR=vi
-RUN echo 'export OMP_NUM_THREADS=$(nproc)' >> $DOCKER_HOME/.profile && \
+RUN echo 'source ${FENICS_PREFIX}/share/dolfin/dolfin.conf'  >> $DOCKER_HOME/.profile && \
+    echo 'export OMP_NUM_THREADS=$(nproc)' >> $DOCKER_HOME/.profile && \
     sed -i '/octave/ d' $DOCKER_HOME/.config/lxsession/LXDE/autostart && \
+    cp -r $FENICS_PREFIX/share/dolfin/demo $DOCKER_HOME/demo && \
+    rm -f $DOCKER_HOME/fenics-* && \
     echo "PATH=$DOCKER_HOME/bin:$PATH" >> $DOCKER_HOME/.profile
 
 WORKDIR $DOCKER_HOME
