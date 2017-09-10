@@ -2,10 +2,10 @@ Welcome to the Docker image for AMS 529: Finite Element Methods!
 This image is based on Ubuntu 16.04, with FEniCS 2017.1.0, SciPy and
 Spyder for Python 3.5.2, Jupyter Notebook, and g++-5.4 preinstalled.
 
-To explore FEniCS, checkout the demo programs in the '~/demo' directory.
+To explore FEniCS, checkout the demo programs in the '~/fenics-demo' directory.
 For example:
 
-    cd ~/demo/documented/poisson/python/
+    cd ~/fenics-demo/documented/poisson/python/
     python3 demo_poisson.py
 
 Please save your code and data into the ~/shared or ~/project directories.
