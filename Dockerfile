@@ -106,7 +106,7 @@ ENV GIT_EDITOR=vi EDITOR=vi
 RUN echo 'export OMP_NUM_THREADS=$(nproc)' >> $DOCKER_HOME/.profile && \
     sed -i '/octave/ d' $DOCKER_HOME/.config/lxsession/LXDE/autostart && \
     cp -r $FENICS_PREFIX/share/dolfin/demo $DOCKER_HOME/fenics-demo && \
-    rm -f $DOCKER_HOME/fenics-* && \
+    rm -f $DOCKER_HOME/bin/fenics-* && \
     echo "PATH=$DOCKER_HOME/bin:$PATH" >> $DOCKER_HOME/.profile
 
 WORKDIR $DOCKER_HOME
