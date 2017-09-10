@@ -17,20 +17,24 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
     apt-get install -y --no-install-recommends \
         git \
         git-lfs \
-        gdb \
-        ccache \
         libnss3 \
         doxygen \
         flex \
         \
+        libboost-filesystem-dev \
+        libboost-iostreams-dev \
+        libboost-math-dev \
+        libboost-program-options-dev \
+        libboost-system-dev \
+        libboost-thread-dev \
+        libboost-timer-dev \
+        libeigen3-dev \
         libomp-dev \
         libpcre3-dev \
         libhdf5-mpich-dev \
         libgmp-dev \
         libcln-dev \
-        libmpfr-dev \
-        \
-        meld && \
+        libmpfr-dev && \
     apt-get clean && \
     pip3 install -U \
         numpy \
@@ -38,11 +42,13 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
         sympy \
         pandas \
         matplotlib \
+        flufl.lock \
+        ply \
+        pytest \
         autopep8 \
         flake8 \
         PyQt5 \
         spyder && \
-    ln -s -f /usr/local/bin/spyder3 /usr/local/bin/spyder && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
 # Environment variables
@@ -75,11 +81,21 @@ RUN pip3 install --no-cache-dir https://bitbucket.org/mpi4py/mpi4py/downloads/mp
     make install && \
     rm -rf /tmp/*
 
+ADD image/home $DOCKER_HOME
+
+# Build FEniCS with Python3
+ENV FENICS_BUILD_TYPE=Release \
+    FENICS_PREFIX=/usr/local \
+    FENICS_VERSION=2017.1.0 \
+    FENICS_PYTHON=python3
+
+RUN FENICS_SRC_DIR=/tmp/src $DOCKER_HOME/bin/fenics-pull && \
+    FENICS_SRC_DIR=/tmp/src $DOCKER_HOME/bin/fenics-build && \
+    ldconfig
+
 ########################################################
 # Customization for user
 ########################################################
-
-ADD image/home $DOCKER_HOME
 
 USER $DOCKER_USER
 ENV GIT_EDITOR=vi EDITOR=vi
