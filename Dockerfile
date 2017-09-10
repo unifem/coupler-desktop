@@ -93,7 +93,8 @@ ENV FENICS_BUILD_TYPE=Release \
 
 RUN FENICS_SRC_DIR=/tmp/src $DOCKER_HOME/bin/fenics-pull && \
     FENICS_SRC_DIR=/tmp/src $DOCKER_HOME/bin/fenics-build && \
-    ldconfig
+    ldconfig && \
+    rm -f $DOCKER_HOME/bin/fenics-*
 
 ENV PYTHONPATH=$FENICS_PREFIX/lib/python3/dist-packages:$PYTHONPATH
 
@@ -106,7 +107,6 @@ ENV GIT_EDITOR=vi EDITOR=vi
 RUN echo 'export OMP_NUM_THREADS=$(nproc)' >> $DOCKER_HOME/.profile && \
     sed -i '/octave/ d' $DOCKER_HOME/.config/lxsession/LXDE/autostart && \
     cp -r $FENICS_PREFIX/share/dolfin/demo $DOCKER_HOME/fenics-demo && \
-    rm -f $DOCKER_HOME/bin/fenics-* && \
     echo "PATH=$DOCKER_HOME/bin:$PATH" >> $DOCKER_HOME/.profile
 
 WORKDIR $DOCKER_HOME
