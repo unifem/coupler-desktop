@@ -4,15 +4,14 @@
 # Authors:
 # Xiangmin Jiao <xmjiao@gmail.com>
 
-FROM compdatasci/octave-desktop:latest
+FROM fastsolve/desktop:base
 LABEL maintainer "Xiangmin Jiao <xmjiao@gmail.com>"
 
 USER root
 WORKDIR /tmp
 
 # Install system packages
-RUN add-apt-repository ppa:fenics-packages/fenics && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         git \
         gdb \
@@ -22,7 +21,6 @@ RUN add-apt-repository ppa:fenics-packages/fenics && \
         liblapack-dev \
         libopenblas-dev \
         libomp-dev \
-        fenics \
         \
         meld && \
     apt-get clean && \
