@@ -108,7 +108,9 @@ RUN echo 'export OMP_NUM_THREADS=$(nproc)' >> $DOCKER_HOME/.profile && \
     sed -i '/octave/ d' $DOCKER_HOME/.config/lxsession/LXDE/autostart && \
     echo "@spyder" >> $DOCKER_HOME/.config/lxsession/LXDE/autostart && \
     cp -r $FENICS_PREFIX/share/dolfin/demo $DOCKER_HOME/fenics-demo && \
-    echo "PATH=$DOCKER_HOME/bin:$PATH" >> $DOCKER_HOME/.profile
+    echo "PATH=$DOCKER_HOME/bin:$PATH" >> $DOCKER_HOME/.profile && \
+    echo "alias python=python3" >> $DOCKER_HOME/.profile && \
+    echo "alias ipython=ipython3" >> $DOCKER_HOME/.profile
 
 WORKDIR $DOCKER_HOME
 USER root
