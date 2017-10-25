@@ -20,6 +20,7 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
         libnss3 \
         doxygen \
         flex \
+        imagemagick \
         \
         libboost-filesystem-dev \
         libboost-iostreams-dev \
