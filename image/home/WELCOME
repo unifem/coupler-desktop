@@ -1,4 +1,4 @@
-Welcome to the Docker image for AMS 529: Finite Element Methods!
+Welcome to the Docker image for Multiphysics Coupler!
 This image is based on Ubuntu 16.04, with FEniCS 2017.1.0, SciPy and
 Spyder for Python 3.5.2, Jupyter Notebook, and g++-5.4 preinstalled.
 
@@ -15,5 +15,3 @@ maps to the Docker data volume named ams529_project on your host.
 To use git with ssh authentication, make sure the ssh key on your host
 computer is in bitbucket and github, and then run "ssh-add" in this terminal
 to add your ssh key to the ssh-agent.
-
-Happy computing!

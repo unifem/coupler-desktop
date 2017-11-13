@@ -1,5 +1,5 @@
-# Builds a Docker image with Ubuntu 16.04, FEniCS, Python3 and Jupyter Notebook
-# for "AMS 529: Finite Element Methods" at Stony Brook University
+# Builds a Docker image with Ubuntu 16.04, Python 3, FEniCS, and Jupyter Notebook
+# for multiphysics coupling
 #
 # Authors:
 # Xiangmin Jiao <xmjiao@gmail.com>

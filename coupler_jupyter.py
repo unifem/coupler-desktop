@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Launch a Docker image with Ubuntu and LXDE window manager, and
+Launch Jupyter Notebook within a Docker notebook image and
 automatically open up the URL in the default web browser.
 """
 
@@ -13,7 +13,7 @@ import sys
 import subprocess
 import time
 
-APP = "ams529"
+APP = "coupler"
 
 
 def parse_args(description):
@@ -60,10 +60,8 @@ def parse_args(description):
                         action='store_true',
                         default=False)
 
-    parser.add_argument('-s', '--size',
-                        help='Size of the screen. The default is to use ' +
-                        'the current screen size.',
-                        default="")
+    parser.add_argument('notebook', nargs='?',
+                        help='The notebook to open.', default="")
 
     parser.add_argument('-n', '--no-browser',
                         help='Do not start web browser',
@@ -78,6 +76,7 @@ def parse_args(description):
                         default=[])
 
     args = parser.parse_args()
+
     # Append tag to image if the image has no tag
     if args.image.find(':') < 0:
         if not args.tag:
@@ -129,43 +128,6 @@ def find_free_port(port, retries):
     sys.exit(-1)
 
 
-def wait_net_service(port, timeout=30):
-    """ Wait for network service to appear.
-    """
-    import socket
-
-    for _ in range(timeout * 10):
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect(("127.0.0.1", port))
-        except socket.error:
-            sock.close()
-            time.sleep(0.1)
-            continue
-        else:
-            sock.close()
-            time.sleep(3)
-            return True
-
-
-def get_screen_resolution():
-    """Obtain the local screen resolution."""
-
-    try:
-        if sys.version_info.major > 2:
-            import tkinter as tk
-        else:
-            import Tkinter as tk
-
-        root = tk.Tk()
-        root.withdraw()
-        width, height = root.winfo_screenwidth(), root.winfo_screenheight()
-
-        return str(width) + 'x' + str(height)
-    except:
-        return ""
-
-
 def handle_interrupt(container):
     """Handle keyboard interrupt"""
     try:
@@ -175,7 +137,7 @@ def handle_interrupt(container):
     except KeyboardInterrupt:
         print('*** Stopping the server.')
         subprocess.Popen(["docker", "exec", container,
-                          "killall", "startvnc.sh"],
+                          "killall", "jupyter-notebook"],
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         sys.exit(0)
 
@@ -267,36 +229,24 @@ if __name__ == "__main__":
     else:
         rmflag = "--rm"
 
-    # Determine size of the desktop
-    if not args.size:
-        size = get_screen_resolution()
-        if not size:
-            # Set default size and disable webbrowser
-            size = "1440x900"
-            args.no_browser = True
-    else:
-        size = args.size
-
     # Generate a container ID
     container = id_generator()
 
     envs = ["--hostname", container,
-            "--env", "RESOLUT=" + size,
             "--env", "HOST_UID=" + uid]
 
     # Start the docker image in the background and pipe the stderr
-    port_http = str(find_free_port(6080, 50))
-    port_vnc = str(find_free_port(5290, 50))
+    port_http = str(find_free_port(8888, 50))
+
     subprocess.call(["docker", "run", "-d", rmflag, "--name", container,
-                     "-p", "127.0.0.1:" + port_http + ":6080",
-                     "-p", "127.0.0.1:" + port_vnc + ":5900"] +
+                     "-p", "127.0.0.1:" + port_http + ":" + port_http] +
                     envs + volumes + args.args +
-                    ['--security-opt', 'seccomp=unconfined',
-                     args.image, "startvnc.sh >> " +
-                     docker_home + "/.log/vnc.log"])
+                    [args.image,
+                     "jupyter-notebook --no-browser --ip=0.0.0.0 --port " +
+                     port_http +
+                     " >> " + docker_home + "/.log/jupyter.log 2>&1"])
 
     wait_for_url = True
-
     # Wait for user to press Ctrl-C
     while True:
         try:
@@ -304,43 +254,41 @@ if __name__ == "__main__":
                 # Wait until the file is not empty
                 while not subprocess.check_output(["docker", "exec", container,
                                                    "cat", docker_home +
-                                                   "/.log/vnc.log"]):
+                                                   "/.log/jupyter.log"]):
                     time.sleep(1)
 
                 p = subprocess.Popen(["docker", "exec", container,
                                       "tail", "-F",
-                                      docker_home + "/.log/vnc.log"],
+                                      docker_home + "/.log/jupyter.log"],
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE,
                                      universal_newlines=True)
 
                 # Monitor the stdout to extract the URL
                 for stdout_line in iter(p.stdout.readline, ""):
-                    ind = stdout_line.find("http://localhost:")
+                    ind = stdout_line.find("http://0.0.0.0:")
 
                     if ind >= 0:
                         # Open browser if found URL
-                        url = stdout_line.replace(":6080/",
-                                                  ':' + port_http + "/")
-                        sys.stdout.write(url)
+                        if not args.notebook:
+                            url = "http://localhost:" + \
+                                stdout_line[ind + 15:-1]
+                        else:
+                            url = "http://localhost:" + port_http + \
+                                "/notebooks/" + args.notebook + \
+                                stdout_line[stdout_line.find("?token="):-1]
 
-                        passwd = stdout_line[url.find('password=') + 9:]
-                        sys.stdout.write("\nFor a better experience, use VNC Viewer (" +
-                                         'http://realvnc.com/download/viewer)\n' +
-                                         "to connect to localhost:%s with password %s\n" %
-                                         (port_vnc, passwd))
+                        print("Copy/paste this URL into your browser " +
+                              "when you connect for the first time:")
+                        print("    ", url)
 
                         if not args.no_browser:
-                            wait_net_service(int(port_http))
-                            webbrowser.open(url[ind:-1])
+                            webbrowser.open(url)
 
                         p.stdout.close()
                         p.terminate()
                         wait_for_url = False
                         break
-                    else:
-                        sys.stdout.write(stdout_line)
-
             if args.detach:
                 print('Started container ' + container + ' in background.')
                 print('To stop it, use "docker stop ' + container + '".')
