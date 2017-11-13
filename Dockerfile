@@ -37,6 +37,9 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
         libcln-dev \
         libmpfr-dev \
         \
+        tk-dev \
+        libglu1-mesa-dev \
+        libxmu-dev \
         meld && \
     apt-get clean && \
     pip3 install -U \
@@ -82,7 +85,22 @@ RUN pip3 install --no-cache-dir https://bitbucket.org/mpi4py/mpi4py/downloads/mp
     ./configure && \
     make && \
     make install && \
+    cd /tmp && \
     rm -rf /tmp/*
+
+# Install CGNS
+RUN mkdir /usr/local/hdf5 && \
+    ln -s -f /usr/include/hdf5/serial /usr/local/hdf5/include && \
+    ln -s -f /usr/lib/x86_64-linux-gnu/hdf5/serial /usr/local/hdf5/lib  && \
+    git clone --depth=1 -b master https://github.com/CGNS/CGNS.git && \
+    cd CGNS/src && \
+    export LIBS="-Wl,--no-as-needed -ldl -lz -lsz -lpthread" && \
+    ./configure --enable-64bit --with-zlib --with-hdf5=/usr/local/hdf5 && \
+        --enable-cgnstools --enable-lfs && \
+    sed -i 's/TKINCS =/TKINCS = -I\/usr\/include\/tcl/' cgnstools/make.defs && \
+    make && \
+    make install && \
+    rm -rf /tmp/CGNS
 
 ADD image/home $DOCKER_HOME
 
@@ -109,7 +127,7 @@ RUN echo 'export OMP_NUM_THREADS=$(nproc)' >> $DOCKER_HOME/.profile && \
     sed -i '/octave/ d' $DOCKER_HOME/.config/lxsession/LXDE/autostart && \
     echo "@spyder" >> $DOCKER_HOME/.config/lxsession/LXDE/autostart && \
     cp -r $FENICS_PREFIX/share/dolfin/demo $DOCKER_HOME/fenics-demo && \
-    echo "PATH=$DOCKER_HOME/bin:$PATH" >> $DOCKER_HOME/.profile && \
+    echo "PATH=$DOCKER_HOME/bin:/usr/local/bin/cgnstools:$PATH" >> $DOCKER_HOME/.profile && \
     echo "alias python=python3" >> $DOCKER_HOME/.profile && \
     echo "alias ipython=ipython3" >> $DOCKER_HOME/.profile
 
