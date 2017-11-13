@@ -26,8 +26,8 @@ def parse_args(description):
 
     parser.add_argument('-i', '--image',
                         help='The Docker image to use. ' +
-                        'The default is ' + APP + '/desktop.',
-                        default=APP + "/desktop")
+                        'The default is unifem/' + APP + '-desktop.',
+                        default="unifem/" + APP + "-desktop")
 
     parser.add_argument('-t', '--tag',
                         help='Tag of the image. The default is latest. ' +
