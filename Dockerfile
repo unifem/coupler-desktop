@@ -95,7 +95,7 @@ RUN mkdir /usr/local/hdf5 && \
     git clone --depth=1 -b master https://github.com/CGNS/CGNS.git && \
     cd CGNS/src && \
     export LIBS="-Wl,--no-as-needed -ldl -lz -lsz -lpthread" && \
-    ./configure --enable-64bit --with-zlib --with-hdf5=/usr/local/hdf5 && \
+    ./configure --enable-64bit --with-zlib --with-hdf5=/usr/local/hdf5 \
         --enable-cgnstools --enable-lfs && \
     sed -i 's/TKINCS =/TKINCS = -I\/usr\/include\/tcl/' cgnstools/make.defs && \
     make && \
