@@ -37,9 +37,10 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
         libcln-dev \
         libmpfr-dev \
         \
+        autogen autoconf libtool \
         libhdf5-mpich-dev \
-        libnetcdf-dev \
-        metis \
+        libnetcdf-dev netcdf-bin \
+        libmetis5 libmetis5-dev \
         \
         tk-dev \
         libglu1-mesa-dev \
@@ -74,7 +75,7 @@ RUN wget -nc --quiet https://bitbucket.org/slepc/slepc/get/v${SLEPC_VERSION}.tar
     mkdir -p slepc-src && tar -xf slepc-${SLEPC_VERSION}.tar.gz -C slepc-src --strip-components 1 && \
     cd slepc-src && \
     ./configure --prefix=/usr/local/slepc-${SLEPC_VERSION} && \
-    make && \
+    make -j2 && \
     make install && \
     rm -rf /tmp/*
 
@@ -88,24 +89,55 @@ RUN pip3 install --no-cache-dir https://bitbucket.org/mpi4py/mpi4py/downloads/mp
     tar -xf swig-${SWIG_VERSION}.tar.gz && \
     cd swig-${SWIG_VERSION} && \
     ./configure && \
-    make && \
+    make -j2 && \
     make install && \
     cd /tmp && \
     rm -rf /tmp/*
 
 # Install CGNS
-RUN mkdir /usr/local/hdf5 && \
+RUN cd /tmp && \
+    mkdir /usr/local/hdf5 && \
     ln -s -f /usr/include/hdf5/mpich /usr/local/hdf5/include && \
     ln -s -f /usr/lib/x86_64-linux-gnu/hdf5/mpich /usr/local/hdf5/lib  && \
     git clone --depth=1 -b master https://github.com/CGNS/CGNS.git && \
     cd CGNS/src && \
+    export CC="mpicc.mpich" && \
     export LIBS="-Wl,--no-as-needed -ldl -lz -lsz -lpthread" && \
     ./configure --enable-64bit --with-zlib --with-hdf5=/usr/local/hdf5 \
         --enable-cgnstools --enable-lfs && \
     sed -i 's/TKINCS =/TKINCS = -I\/usr\/include\/tcl/' cgnstools/make.defs && \
-    make && \
-    make install && \
+    make -j2 && make install && \
     rm -rf /tmp/CGNS
+
+
+# Install MOAB and pymoab
+RUN cd /tmp && \
+    git clone --depth=1 https://bitbucket.org/fathomteam/moab.git && \
+    cd moab && \
+    autoreconf -fi && \
+    ./configure \
+        --prefix=/usr/local \
+        --with-mpi=/usr/lib/mpich \
+        CC=mpicc.mpich \
+        CXX=mpicxx.mpich \
+        FC=mpif90.mpich \
+        F77=mpif77.mpich \
+        --enable-optimize \
+        --enable-shared=yes \
+        --with-blas=-lopenblas \
+        --with-lapack=-lopenblas \
+        --with-scotch=$PETSC_DIR \
+        --with-metis=/usr/lib/x86_64-linux-gnu \
+        --with-eigen3=/usr/include/eigen3 \
+        --with-x \
+        --without-cgns \
+        --with-netcdf \
+        --with-hdf5=/usr/local/hdf5 \
+        --with-hdf5-ldflags="-L/usr/local/hdf5/lib" \
+        --enable-ahf=yes \
+        --enable-tools=yes && \
+    make -j2 && make install && \
+    rm -rf /tmp/moab
 
 ADD image/home $DOCKER_HOME
 
