@@ -75,7 +75,7 @@ RUN wget -nc --quiet https://bitbucket.org/slepc/slepc/get/v${SLEPC_VERSION}.tar
     mkdir -p slepc-src && tar -xf slepc-${SLEPC_VERSION}.tar.gz -C slepc-src --strip-components 1 && \
     cd slepc-src && \
     ./configure --prefix=/usr/local/slepc-${SLEPC_VERSION} && \
-    make -j2 && \
+    make && \
     make install && \
     rm -rf /tmp/*
 
@@ -89,7 +89,7 @@ RUN pip3 install --no-cache-dir https://bitbucket.org/mpi4py/mpi4py/downloads/mp
     tar -xf swig-${SWIG_VERSION}.tar.gz && \
     cd swig-${SWIG_VERSION} && \
     ./configure && \
-    make -j2 && \
+    make && \
     make install && \
     cd /tmp && \
     rm -rf /tmp/*
@@ -102,10 +102,9 @@ RUN cd /tmp && \
     git clone --depth=1 -b master https://github.com/CGNS/CGNS.git && \
     cd CGNS/src && \
     export CC="mpicc.mpich" && \
-    export CFLAGS="-fPIC" && \
     export LIBS="-Wl,--no-as-needed -ldl -lz -lsz -lpthread" && \
     ./configure --enable-64bit --with-zlib --with-hdf5=/usr/local/hdf5 \
-        --enable-cgnstools --enable-lfs && \
+        --enable-cgnstools --enable-lfs --enable-shared && \
     sed -i 's/TKINCS =/TKINCS = -I\/usr\/include\/tcl/' cgnstools/make.defs && \
     make -j2 && make install && \
     rm -rf /tmp/CGNS
