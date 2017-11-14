@@ -37,7 +37,7 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
         libcln-dev \
         libmpfr-dev \
         \
-        autogen autoconf libtool \
+        automake autogen autoconf libtool \
         libhdf5-mpich-dev \
         libnetcdf-dev netcdf-bin \
         libmetis5 libmetis-dev \
