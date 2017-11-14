@@ -60,7 +60,10 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
         autopep8 \
         flake8 \
         PyQt5 \
-        spyder && \
+        spyder \
+        \
+        cython \
+        nose && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
 # Environment variables
@@ -96,14 +99,14 @@ RUN pip3 install --no-cache-dir https://bitbucket.org/mpi4py/mpi4py/downloads/mp
 
 # Install CGNS
 RUN cd /tmp && \
-    mkdir /usr/local/hdf5 && \
-    ln -s -f /usr/include/hdf5/mpich /usr/local/hdf5/include && \
-    ln -s -f /usr/lib/x86_64-linux-gnu/hdf5/mpich /usr/local/hdf5/lib  && \
+    mkdir /usr/lib/hdf5 && \
+    ln -s -f /usr/include/hdf5/mpich /usr/lib/hdf5/include && \
+    ln -s -f /usr/lib/x86_64-linux-gnu/hdf5/mpich /usr/lib/hdf5/lib  && \
     git clone --depth=1 -b master https://github.com/CGNS/CGNS.git && \
     cd CGNS/src && \
     export CC="mpicc.mpich" && \
     export LIBS="-Wl,--no-as-needed -ldl -lz -lsz -lpthread" && \
-    ./configure --enable-64bit --with-zlib --with-hdf5=/usr/local/hdf5 \
+    ./configure --enable-64bit --with-zlib --with-hdf5=/usr/lib/hdf5 \
         --enable-cgnstools --enable-lfs --enable-shared && \
     sed -i 's/TKINCS =/TKINCS = -I\/usr\/include\/tcl/' cgnstools/make.defs && \
     make -j2 && make install && \
@@ -132,11 +135,14 @@ RUN cd /tmp && \
         --with-x \
         --with-cgns \
         --with-netcdf \
-        --with-hdf5=/usr/local/hdf5 \
-        --with-hdf5-ldflags="-L/usr/local/hdf5/lib" \
+        --with-hdf5=/usr/lib/hdf5 \
+        --with-hdf5-ldflags="-L/usr/lib/hdf5/lib" \
         --enable-ahf=yes \
         --enable-tools=yes && \
     make -j2 && make install && \
+    \
+    cd pymoab && \
+    python3 setup.py install && \
     rm -rf /tmp/moab
 
 ADD image/home $DOCKER_HOME
@@ -147,16 +153,18 @@ ENV FENICS_BUILD_TYPE=Release \
     FENICS_VERSION=2017.1.0 \
     FENICS_PYTHON=python3
 
-RUN FENICS_SRC_DIR=/tmp/src $DOCKER_HOME/bin/fenics-pull && \
+RUN cd /tmp && \
+    FENICS_SRC_DIR=/tmp/src $DOCKER_HOME/bin/fenics-pull && \
     FENICS_SRC_DIR=/tmp/src $DOCKER_HOME/bin/fenics-build && \
     ldconfig && \
+    rm -rf /tmp/src && \
     rm -f $DOCKER_HOME/bin/fenics-*
 
-# Install fenics-tools
+# Install fenics-tools (this will be removed later)
 RUN cd /tmp && \
     git clone --depth 1 https://github.com/mikaem/fenicstools.git && \
     cd fenicstools && \
-    python setup.py install --prefix=/usr/local/lib/python3/dist-packages && \
+    python3 setup.py install && \
     rm -rf /tmp/fenicstools
 
 ENV PYTHONPATH=$FENICS_PREFIX/lib/python3/dist-packages:$PYTHONPATH
