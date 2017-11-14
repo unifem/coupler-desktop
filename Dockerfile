@@ -157,7 +157,7 @@ RUN cd /tmp && \
     git clone --depth 1 https://github.com/mikaem/fenicstools.git && \
     cd fenicstools && \
     python setup.py install --prefix=/usr/local/lib/python3/dist-packages && \
-    rm -f /tmp/fenicstools
+    rm -rf /tmp/fenicstools
 
 ENV PYTHONPATH=$FENICS_PREFIX/lib/python3/dist-packages:$PYTHONPATH
 
