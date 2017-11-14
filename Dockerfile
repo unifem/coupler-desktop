@@ -32,14 +32,19 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
         libeigen3-dev \
         libomp-dev \
         libpcre3-dev \
-        libhdf5-mpich-dev \
+        \
         libgmp-dev \
         libcln-dev \
         libmpfr-dev \
         \
+        libhdf5-mpich-dev \
+        libnetcdf-dev \
+        metis \
+        \
         tk-dev \
         libglu1-mesa-dev \
         libxmu-dev \
+        \
         meld && \
     apt-get clean && \
     pip3 install -U \
@@ -90,8 +95,8 @@ RUN pip3 install --no-cache-dir https://bitbucket.org/mpi4py/mpi4py/downloads/mp
 
 # Install CGNS
 RUN mkdir /usr/local/hdf5 && \
-    ln -s -f /usr/include/hdf5/serial /usr/local/hdf5/include && \
-    ln -s -f /usr/lib/x86_64-linux-gnu/hdf5/serial /usr/local/hdf5/lib  && \
+    ln -s -f /usr/include/hdf5/mpich /usr/local/hdf5/include && \
+    ln -s -f /usr/lib/x86_64-linux-gnu/hdf5/mpich /usr/local/hdf5/lib  && \
     git clone --depth=1 -b master https://github.com/CGNS/CGNS.git && \
     cd CGNS/src && \
     export LIBS="-Wl,--no-as-needed -ldl -lz -lsz -lpthread" && \
