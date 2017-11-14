@@ -113,6 +113,17 @@ RUN cd /tmp && \
     rm -rf /tmp/CGNS
 
 
+# Install pyCGNS
+RUN cd /tmp && \
+    git clone --depth=1 -b master https://github.com/unifem/pyCGNS.git && \
+    cd pyCGNS && \
+    python3 setup.py build \
+        --includes=/usr/include/hdf5/mpich:/usr/include/mpich \
+        --libraries=/usr/lib/hdf5/mpic \
+        --app 0 --val 0 --nav 0 --wra 0 && \
+    python3 setup.py install && \
+    rm -rf /tmp/pyCGNS
+
 # Install MOAB and pymoab
 RUN cd /tmp && \
     git clone --depth=1 https://bitbucket.org/fathomteam/moab.git && \
@@ -162,7 +173,7 @@ RUN cd /tmp && \
 
 # Install fenics-tools (this will be removed later)
 RUN cd /tmp && \
-    git clone --depth 1 https://github.com/mikaem/fenicstools.git && \
+    git clone --depth 1 https://github.com/unifem/fenicstools.git && \
     cd fenicstools && \
     python3 setup.py install && \
     rm -rf /tmp/fenicstools
