@@ -40,7 +40,7 @@ RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.d
         autogen autoconf libtool \
         libhdf5-mpich-dev \
         libnetcdf-dev netcdf-bin \
-        libmetis5 libmetis5-dev \
+        libmetis5 libmetis-dev \
         \
         tk-dev \
         libglu1-mesa-dev \
@@ -102,6 +102,7 @@ RUN cd /tmp && \
     git clone --depth=1 -b master https://github.com/CGNS/CGNS.git && \
     cd CGNS/src && \
     export CC="mpicc.mpich" && \
+    export CFLAGS="-fPIC" && \
     export LIBS="-Wl,--no-as-needed -ldl -lz -lsz -lpthread" && \
     ./configure --enable-64bit --with-zlib --with-hdf5=/usr/local/hdf5 \
         --enable-cgnstools --enable-lfs && \
@@ -130,7 +131,7 @@ RUN cd /tmp && \
         --with-metis=/usr/lib/x86_64-linux-gnu \
         --with-eigen3=/usr/include/eigen3 \
         --with-x \
-        --without-cgns \
+        --with-cgns \
         --with-netcdf \
         --with-hdf5=/usr/local/hdf5 \
         --with-hdf5-ldflags="-L/usr/local/hdf5/lib" \
@@ -151,6 +152,13 @@ RUN FENICS_SRC_DIR=/tmp/src $DOCKER_HOME/bin/fenics-pull && \
     FENICS_SRC_DIR=/tmp/src $DOCKER_HOME/bin/fenics-build && \
     ldconfig && \
     rm -f $DOCKER_HOME/bin/fenics-*
+
+# Install fenics-tools
+RUN cd /tmp && \
+    git clone --depth 1 https://github.com/mikaem/fenicstools.git && \
+    cd fenicstools && \
+    python setup.py install --prefix=/usr/local/lib/python3/dist-packages && \
+    rm -f /tmp/fenicstools
 
 ENV PYTHONPATH=$FENICS_PREFIX/lib/python3/dist-packages:$PYTHONPATH
 
