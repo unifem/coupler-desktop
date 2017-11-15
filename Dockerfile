@@ -119,7 +119,7 @@ RUN cd /tmp && \
     cd pyCGNS && \
     python3 setup.py build \
         --includes=/usr/include/hdf5/mpich:/usr/include/mpich \
-        --libraries=/usr/lib/hdf5/mpic \
+        --libraries=/usr/lib/x86_64-linux-gnu/hdf5/mpich \
         --app 0 --val 0 --nav 0 --wra 0 && \
     python3 setup.py install && \
     rm -rf /tmp/pyCGNS
