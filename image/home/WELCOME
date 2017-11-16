@@ -1,6 +1,7 @@
 Welcome to the Docker image for Multiphysics Coupler!
-This image is based on Ubuntu 16.04, with FEniCS 2017.1.0, SciPy and
-Spyder for Python 3.5.2, Jupyter Notebook, and g++-5.4 preinstalled.
+
+This image is based on Ubuntu 16.04, with FEniCS, SfePy, CalculiX,
+MeshDB and Mapper preinstalled.
 
 Please save your code and data into the ~/shared or ~/project directories.
 The former maps to the current work directory on your computer. The latter
