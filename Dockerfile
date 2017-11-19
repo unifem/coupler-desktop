@@ -1,22 +1,24 @@
 # Builds a Docker image with sfepy and Calculix, based on
-# Ubuntu 16.04 for multiphysics coupling
+# Ubuntu 17.10 for multiphysics coupling
 #
 # Authors:
 # Xiangmin Jiao <xmjiao@gmail.com>
 
 # Use mapper-desktop as base image
-FROM unifem/mapper-desktop
+FROM unifem/mapper-desktop:latest
 LABEL maintainer "Xiangmin Jiao <xmjiao@gmail.com>"
 
 USER root
 WORKDIR /tmp
 
-# Install system packages
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
+# Install gmsh, freecad, calculix
+RUN add-apt-repository ppa:nschloe/gmsh-backports && \
+    add-apt-repository ppa:freecad-maintainers/freecad-stable && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
+        gmsh \
+        freecad \
         calculix-ccx \
-        gfortran \
         libsuitesparse-dev && \
     apt-get clean && \
     pip3 install -U \
