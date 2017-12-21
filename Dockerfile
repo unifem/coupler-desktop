@@ -138,7 +138,5 @@ RUN cd $DOCKER_HOME/overture && \
     cd $CG && \
     make -j2 libCommon cgad cgcns cgins cgasf cgsm cgmp unitTests
 
-USER
-
 WORKDIR $DOCKER_HOME
 USER root
