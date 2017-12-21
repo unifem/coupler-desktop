@@ -33,6 +33,7 @@ RUN add-apt-repository ppa:nschloe/gmsh-backports && \
 
 # Install sfepy (without pysparse and mayavi are not installed)
 ARG SFEPY_VERSION=2017.3
+ARG HDF5_VERSION=1.8.20
 
 RUN pip3 install --no-cache-dir \
         https://bitbucket.org/dalcinl/igakit/get/default.tar.gz && \
@@ -55,11 +56,6 @@ RUN apt-get update && \
       libglu1-mesa \
       libglu1-mesa-dev \
       \
-      libhdf5-100 \
-      libhdf5-dev \
-      libhdf5-openmpi-100 \
-      libhdf5-openmpi-dev \
-      hdf5-tools \
       libperl-dev \
       \
       libxmu-dev \
@@ -74,26 +70,26 @@ RUN apt-get update && \
     curl -O http://ubuntu.cs.utah.edu/ubuntu/pool/main/libx/libxp/libxp-dev_1.0.2-1ubuntu1_amd64.deb && \
     dpkg -i libxp-dev_1.0.2-1ubuntu1_amd64.deb && \
     \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    \
     ln -s -f /usr/bin/make /usr/bin/gmake && \
     \
-    mkdir -p /usr/lib/hdf5-openmpi && \
-    ln -s -f /usr/include/hdf5/openmpi /usr/lib/hdf5-openmpi/include && \
-    ln -s -f /usr/lib/x86_64-linux-gnu/hdf5/openmpi /usr/lib/hdf5-openmpi/lib && \
+    ln -s -f /usr/lib/x86_64-linux-gnu/libX11.so /usr/lib/X11 && \
+    cd /tmp && \
+    curl -L https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-${HDF5_VERSION}.tar.gz | \
+        tar zx && \
+    cd hdf5-${HDF5_VERSION} && \
+    ./configure --enable-shared --prefix /usr/local/hdf5-${HDF5_VERSION} && \
+    make -j2 && make install && \
     \
-    mkdir -p /usr/lib/hdf5-serial && \
-    ln -s -f /usr/include/hdf5/serial /usr/lib/hdf5-serial/include && \
-    ln -s -f /usr/lib/x86_64-linux-gnu/hdf5/serial /usr/lib/hdf5-serial/lib && \
-    \
-    ln -s -f /usr/lib/x86_64-linux-gnu/libX11.so /usr/lib/X11
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 
 USER $DOCKER_USER
 ENV APlusPlus_VERSION=0.8.2
 
 # Download and compile A++ and P++
 RUN mkdir -p $DOCKER_HOME/overture && cd $DOCKER_HOME/overture && \
-    curl -L http://overtureframework.org/software/AP-$APlusPlus_VERSION.tar.gz | tar zx && \
+    curl -L http://overtureframework.org/software/AP-$APlusPlus_VERSION.tar.gz | \
+        tar zx && \
     cd A++P++-$APlusPlus_VERSION && \
     ./configure --enable-SHARED_LIBS --prefix=`pwd` && \
     make -j2 && \
@@ -116,7 +112,7 @@ ENV APlusPlus=$DOCKER_HOME/overture/A++P++-$APlusPlus_VERSION/A++/install \
     XLIBS=/usr/lib/X11 \
     OpenGL=/usr \
     MOTIF=/usr \
-    HDF=/usr/lib/hdf5-serial \
+    HDF=/usr/local/hdf5-${HDF5_VERSION} \
     Overture=$DOCKER_HOME/overture/Overture.v26 \
     CG=$DOCKER_HOME/overture/cg.v26 \
     LAPACK=/usr/lib
@@ -141,6 +137,8 @@ RUN cd $DOCKER_HOME/overture && \
     curl -L http://overtureframework.org/software/cg.v26.tar.gz | tar zx && \
     cd $CG && \
     make -j2 libCommon cgad cgcns cgins cgasf cgsm cgmp unitTests
+
+USER
 
 WORKDIR $DOCKER_HOME
 USER root
