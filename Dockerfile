@@ -131,5 +131,8 @@ RUN cd $DOCKER_HOME/overture && \
     cd $CG && \
     make -j2 libCommon cgad cgcns cgins cgasf cgsm cgmp unitTests
 
+RUN echo "export PATH=$DOCKER_HOME/overture/Overture.v26/bin:\$PATH" >> \
+        $DOCKER_HOME/.profile
+
 WORKDIR $DOCKER_HOME
 USER root
