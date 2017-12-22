@@ -31,9 +31,8 @@ RUN add-apt-repository ppa:nschloe/gmsh-backports && \
         pyface && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
-# Install sfepy (without pysparse and mayavi are not installed)
+# Install sfepy (without pysparse and mayavi)
 ARG SFEPY_VERSION=2017.3
-ARG HDF5_VERSION=1.8.20
 
 RUN pip3 install --no-cache-dir \
         https://bitbucket.org/dalcinl/igakit/get/default.tar.gz && \
@@ -42,7 +41,7 @@ RUN pip3 install --no-cache-dir \
 
 ADD image/home $DOCKER_HOME
 
-# Install compilers, openmpi, motif, mesa, and hdf5 to prepare for overture
+# Install compilers, openmpi, motif and mesa to prepare for overture
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       csh \
@@ -73,12 +72,6 @@ RUN apt-get update && \
     ln -s -f /usr/bin/make /usr/bin/gmake && \
     \
     ln -s -f /usr/lib/x86_64-linux-gnu/libX11.so /usr/lib/X11 && \
-    cd /tmp && \
-    curl -L https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-${HDF5_VERSION}.tar.gz | \
-        tar zx && \
-    cd hdf5-${HDF5_VERSION} && \
-    ./configure --enable-shared --prefix /usr/local/hdf5-${HDF5_VERSION} && \
-    make -j2 && make install && \
     \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
