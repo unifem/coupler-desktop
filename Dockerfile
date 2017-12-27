@@ -124,7 +124,7 @@ RUN mv $DOCKER_HOME/overture/cg $CG && \
     mkdir -p $CG/bin && \
     ln -s -f $CG/*/bin/* $CG/bin
 
-RUN echo "export PATH=$Overture/bin:$CG/bin:"\$PATH:." >> \
+RUN echo "export PATH=$Overture/bin:$CG/bin:\$PATH:." >> \
         $DOCKER_HOME/.profile
 
 WORKDIR $DOCKER_HOME
