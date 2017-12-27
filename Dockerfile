@@ -89,8 +89,7 @@ RUN cd $DOCKER_HOME && \
     cd A++P++-$APlusPlus_VERSION && \
     ./configure --enable-SHARED_LIBS --prefix=`pwd` && \
     make -j2 && \
-    make install && \
-    make check
+    make install
 
 # Compile Overture framework
 WORKDIR $DOCKER_HOME/overture
@@ -111,8 +110,7 @@ RUN cd $DOCKER_HOME/overture/Overture && \
     cd $Overture && \
     ./configure opt linux && \
     make -j2 && \
-    make rapsodi && \
-    make check
+    make rapsodi
 
 # Compile CG
 ENV CG_VERSION=$OVERTURE_VERSION
