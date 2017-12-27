@@ -1,4 +1,4 @@
-# Builds a Docker image with sfepy and Calculix, based on
+# Builds a Docker image with sfepy, Calculix and Overture, based on
 # Ubuntu 17.10 for multiphysics coupling
 #
 # Authors:
@@ -71,67 +71,60 @@ RUN apt-get update && \
     \
     ln -s -f /usr/bin/make /usr/bin/gmake && \
     \
+    ln -s -f /usr/lib/x86_64-linux-gnu /usr/lib64 && \
     ln -s -f /usr/lib/x86_64-linux-gnu/libX11.so /usr/lib/X11 && \
     \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
 USER $DOCKER_USER
-ENV APlusPlus_VERSION=0.8.2
+WORKDIR $DOCKER_HOME
 
-# Download and compile A++ and P++
-RUN mkdir -p $DOCKER_HOME/overture && cd $DOCKER_HOME/overture && \
-    curl -L http://overtureframework.org/software/AP-$APlusPlus_VERSION.tar.gz | \
-        tar zx && \
+# Download Overture, A++ and P++; compile A++
+ENV APlusPlus_VERSION=0.8.2
+RUN cd $DOCKER_HOME && \
+    git clone --depth 1 https://github.com/unifem/overtureframework.git overture && \
+    cd $DOCKER_HOME/overture && \
+    curl -L http://overtureframework.org/software/AP-$APlusPlus_VERSION.tar.gz | tar zx && \
     cd A++P++-$APlusPlus_VERSION && \
     ./configure --enable-SHARED_LIBS --prefix=`pwd` && \
     make -j2 && \
     make install && \
-    make check && \
-    \
-    export MPI_ROOT=/usr/lib/x86_64-linux-gnu/openmpi && \
-    ./configure --enable-PXX --prefix=`pwd` --enable-SHARED_LIBS \
-       --with-mpi-include="-I${MPI_ROOT}/include" \
-       --with-mpi-lib-dirs="-Wl,-rpath,${MPI_ROOT}/lib -L${MPI_ROOT}/lib" \
-       --with-mpi-libs="-lmpi -lmpi_cxx" \
-       --with-mpirun=/usr/bin/mpirun \
-       --without-PADRE && \
-    make -j2 && \
-    make install && \
     make check
 
-ENV APlusPlus=$DOCKER_HOME/overture/A++P++-$APlusPlus_VERSION/A++/install \
-    PPlusPlus=$DOCKER_HOME/overture/A++P++-$APlusPlus_VERSION/P++/install \
+# Compile Overture framework
+WORKDIR $DOCKER_HOME/overture
+ENV OVERTURE_VERSION=v26sf
+
+ENV APlusPlus=$DOCKER_HOME/overture/A++P++-${APlusPlus_VERSION}/A++/install \
     XLIBS=/usr/lib/X11 \
     OpenGL=/usr \
     MOTIF=/usr \
     HDF=/usr/local/hdf5-${HDF5_VERSION} \
-    Overture=$DOCKER_HOME/overture/Overture.v26 \
-    CG=$DOCKER_HOME/overture/cg.v26 \
+    Overture=$DOCKER_HOME/overture/Overture.${OVERTURE_VERSION} \
     LAPACK=/usr/lib
 
-WORKDIR $DOCKER_HOME/overture
-
-# Download and compile Overture framework
-# Note that the "distribution=ubuntu" command-line option breaks the
-# configure script, so we need to hard-code it
-RUN cd $DOCKER_HOME/overture && \
-    git clone --depth 1 https://github.com/unifem/overture.git Overture.v26 && \
-    \
-    cd Overture.v26 && \
-    sed -i -e 's/$distribution=""/$distribution="ubuntu"/g' ./configure && \
-    ./configure opt --disable-X11 --disable-gl && \
+RUN cd $DOCKER_HOME/overture/Overture && \
+    mkdir $DOCKER_HOME/cad && \
+    OvertureBuild=$Overture ./buildOverture && \
+    rm -rf $DOCKER_HOME/overture/.git $DOCKER_HOME/overture/Overture && \
+    cd $Overture && \
+    ./configure opt linux && \
     make -j2 && \
     make rapsodi && \
-    ./check.p
+    make check
 
-# Download and compile CG without Maxwell equations
-RUN cd $DOCKER_HOME/overture && \
-    curl -L http://overtureframework.org/software/cg.v26.tar.gz | tar zx && \
+# Compile CG
+ENV CG_VERSION=$OVERTURE_VERSION
+ENV CG=$DOCKER_HOME/overture/cg.$CG_VERSION
+RUN mv $DOCKER_HOME/overture/cg $CG && \
     cd $CG && \
-    make -j2 libCommon cgad cgcns cgins cgasf cgsm cgmp unitTests
+    make -j2 usePETSc=off libCommon && \
+    make -j2 usePETSc=off cgad cgcns cgins cgasf cgsm cgmp && \
+    mkdir -p $CG/bin && \
+    ln -s -f $CG/*/bin/* $CG/bin
 
-RUN echo "export PATH=$DOCKER_HOME/overture/Overture.v26/bin:\$PATH" >> \
+RUN echo "export PATH=$Overture/bin:$CG/bin:"\$PATH:." >> \
         $DOCKER_HOME/.profile
 
 WORKDIR $DOCKER_HOME
