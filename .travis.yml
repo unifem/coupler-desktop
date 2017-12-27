@@ -2,6 +2,7 @@ os: linux
 dist: trusty
 language: python
 services: docker
+sudo: false
 
 env:
   global:
