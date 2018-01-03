@@ -257,9 +257,11 @@ if __name__ == "__main__":
             except subprocess.CalledProcessError as e:
                 sys.stderr.write(e.output.decode('utf-8'))
 
-        volumes += ["-v", args.volume + ":" + docker_home + "/project"]
+        volumes += ["-v", args.volume + ":" + docker_home + "/overture",
+                    "-w", docker_home + "/overture"]
+    else:
+        volumes += ["-w", docker_home + "/shared"]
 
-    volumes += ["-w", docker_home + "/shared"]
     sys.stderr.write("Starting up docker image...\n")
     if subprocess.check_output(["docker", "--version"]). \
             find(b"Docker version 1.") >= 0:
@@ -286,7 +288,7 @@ if __name__ == "__main__":
 
     # Start the docker image in the background and pipe the stderr
     port_http = str(find_free_port(6080, 50))
-    port_vnc = str(find_free_port(5290, 50))
+    port_vnc = str(find_free_port(5950, 50))
     subprocess.call(["docker", "run", "-d", rmflag, "--name", container,
                      "-p", "127.0.0.1:" + port_http + ":6080",
                      "-p", "127.0.0.1:" + port_vnc + ":5900"] +

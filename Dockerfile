@@ -4,7 +4,7 @@
 # Authors:
 # Xiangmin Jiao <xmjiao@gmail.com>
 
-# Use mapper-desktop as base image
+# Use openfoam-ccx as base image
 FROM unifem/openfoam-ccx:latest
 LABEL maintainer "Xiangmin Jiao <xmjiao@gmail.com>"
 
@@ -56,6 +56,7 @@ WORKDIR $DOCKER_HOME
 ENV APlusPlus_VERSION=0.8.2
 RUN cd $DOCKER_HOME && \
     git clone --depth 1 https://github.com/unifem/overtureframework.git overture && \
+    perl -e 's/https:\/\/github.com\//git@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
     cd $DOCKER_HOME/overture && \
     curl -L http://overtureframework.org/software/AP-$APlusPlus_VERSION.tar.gz | tar zx && \
     cd A++P++-$APlusPlus_VERSION && \
