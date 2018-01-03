@@ -4,8 +4,8 @@
 # Authors:
 # Xiangmin Jiao <xmjiao@gmail.com>
 
-# Use openfoam-cxx as base image
-FROM unifem/openfoam-cxx:latest
+# Use mapper-desktop as base image
+FROM unifem/mapper-desktop:latest
 LABEL maintainer "Xiangmin Jiao <xmjiao@gmail.com>"
 
 USER root
