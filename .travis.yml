@@ -6,7 +6,7 @@ sudo: false
 
 env:
   global:
-    - BASE=unifem/openfoam-cxx:latest
+    - BASE=unifem/openfoam-ccx:latest
 
 before_script:
   - docker --version

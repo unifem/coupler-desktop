@@ -5,7 +5,7 @@
 # Xiangmin Jiao <xmjiao@gmail.com>
 
 # Use mapper-desktop as base image
-FROM unifem/mapper-desktop:latest
+FROM unifem/openfoam-ccx:latest
 LABEL maintainer "Xiangmin Jiao <xmjiao@gmail.com>"
 
 USER root
