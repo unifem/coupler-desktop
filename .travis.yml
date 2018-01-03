@@ -6,7 +6,7 @@ sudo: false
 
 env:
   global:
-    - BASE=unifem/fenics-desktop:latest
+    - BASE=unifem/openfoam-cxx:latest
 
 before_script:
   - docker --version
