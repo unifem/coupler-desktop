@@ -51,29 +51,28 @@ RUN apt-get update && \
 
 USER $DOCKER_USER
 WORKDIR $DOCKER_HOME
+ENV AXX_PREFIX=$DOCKER_HOME/overture/A++P++.bin
 
-# Download Overture, A++ and P++; compile A++
-ENV APlusPlus_VERSION=0.8.2
+# Download Overture, A++ and P++; compile only A++
+# Do not run "make check" to avoid timeout
 RUN cd $DOCKER_HOME && \
     git clone --depth 1 https://github.com/unifem/overtureframework.git overture && \
     perl -e 's/https:\/\/github.com\//git@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
     cd $DOCKER_HOME/overture && \
-    curl -L http://overtureframework.org/software/AP-$APlusPlus_VERSION.tar.gz | tar zx && \
-    cd A++P++-$APlusPlus_VERSION && \
-    ./configure --enable-SHARED_LIBS --prefix=`pwd` && \
+    cd A++P++ && \
+    ./configure --enable-SHARED_LIBS --prefix=$AXX_PREFIX && \
     make -j2 && \
     make install
 
 # Compile Overture framework
 WORKDIR $DOCKER_HOME/overture
-ENV OVERTURE_VERSION=v26sf
 
-ENV APlusPlus=$DOCKER_HOME/overture/A++P++-${APlusPlus_VERSION}/A++/install \
+ENV APlusPlus=$AXX_PREFIX/A++/install \
     XLIBS=/usr/lib/X11 \
     OpenGL=/usr \
     MOTIF=/usr \
     HDF=/usr/local/hdf5-${HDF5_VERSION} \
-    Overture=$DOCKER_HOME/overture/Overture.${OVERTURE_VERSION} \
+    Overture=$DOCKER_HOME/overture/Overture.bin \
     LAPACK=/usr/lib
 
 RUN cd $DOCKER_HOME/overture/Overture && \
@@ -85,16 +84,15 @@ RUN cd $DOCKER_HOME/overture/Overture && \
     make rapsodi
 
 # Compile CG
-ENV CG_VERSION=$OVERTURE_VERSION
-ENV CG=$DOCKER_HOME/overture/cg.$CG_VERSION
-RUN mv $DOCKER_HOME/overture/cg $CG && \
-    cd $CG && \
+ENV CG=$DOCKER_HOME/overture/cg
+ENV CGBUILDPREFIX=$DOCKER_HOME/overture/cg.bin
+RUN cd $CG && \
     make -j2 usePETSc=off libCommon && \
     make -j2 usePETSc=off cgad cgcns cgins cgasf cgsm cgmp && \
-    mkdir -p $CG/bin && \
-    ln -s -f $CG/*/bin/* $CG/bin
+    mkdir -p $CGBUILDPREFIX/bin && \
+    ln -s -f $CGBUILDPREFIX/*/bin/* $CGBUILDPREFIX/bin
 
-RUN echo "export PATH=$Overture/bin:$CG/bin:\$PATH:." >> \
+RUN echo "export PATH=$Overture/bin:$CGBUILDPREFIX/bin:\$PATH:." >> \
         $DOCKER_HOME/.profile
 
 WORKDIR $DOCKER_HOME
