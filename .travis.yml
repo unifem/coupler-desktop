@@ -6,7 +6,7 @@ sudo: false
 
 env:
   global:
-    - BASE=unifem/openfoam-ccx:latest
+    - BASE=unifem/openfoam-ccx:latest TAG=next
 
 before_script:
   - docker --version
@@ -19,10 +19,10 @@ script:
         -n $(git log --since $(docker inspect $BASE | grep Created | perl -e "s/.+\"([\d-:T]+).+$/\$1/g" -p)) &&
         -z "$(git diff --name-only $TRAVIS_COMMIT_RANGE |
             grep -e Dockerfile -e .travis.yml -e image -e WELCOME)" ]] ||
-    (docker build --tag unifem/coupler-desktop:latest . &&
+    (docker build --tag unifem/coupler-desktop:$TAG . &&
      docker push unifem/coupler-desktop &&
      touch success)'
   # Test startup scripts
-  - './coupler_desktop.py -d -n && docker stop $(docker ps -q) &&
-     ./coupler_jupyter.py -d -n && docker stop $(docker ps -q)'
+  - './coupler_desktop.py -d -n -t $TAG && docker stop $(docker ps -q) &&
+     ./coupler_jupyter.py -d -n -t $TAG && docker stop $(docker ps -q)'
   - docker images
