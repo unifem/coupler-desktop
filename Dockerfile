@@ -14,9 +14,7 @@ WORKDIR /tmp
 ADD image/home $DOCKER_HOME
 
 # Install compilers, openmpi, motif and mesa to prepare for Overture
-# Also install Atom for editing
-RUN add-apt-repository ppa:webupd8team/atom && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       csh \
       build-essential \
@@ -36,9 +34,7 @@ RUN add-apt-repository ppa:webupd8team/atom && \
       x11proto-print-dev \
       \
       liblapack3 \
-      liblapack-dev \
-      \
-      atom && \
+      liblapack-dev && \
     \
     curl -O http://ubuntu.cs.utah.edu/ubuntu/pool/main/libx/libxp/libxp6_1.0.2-1ubuntu1_amd64.deb && \
     dpkg -i libxp6_1.0.2-1ubuntu1_amd64.deb && \
@@ -50,53 +46,45 @@ RUN add-apt-repository ppa:webupd8team/atom && \
     ln -s -f /usr/lib/x86_64-linux-gnu /usr/lib64 && \
     ln -s -f /usr/lib/x86_64-linux-gnu/libX11.so /usr/lib/X11 && \
     \
-    pip install -U autopep8 && \
-    apm install \
-        language-docker \
-        autocomplete-python \
-        git-plus \
-        merge-conflicts \
-        split-diff \
-        platformio-ide-terminal \
-        intentions \
-        busy-signal \
-        python-autopep8 \
-        clang-format && \
-    chown -R $DOCKER_USER:$DOCKER_GROUP $DOCKER_HOME && \
-    \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 USER $DOCKER_USER
 WORKDIR $DOCKER_HOME
-ENV AXX_PREFIX=$DOCKER_HOME/overture/A++P++.bin
+ENV PXX_PREFIX=$DOCKER_HOME/overture/A++P++
 
-# Download Overture, A++ and P++; compile only A++
-# Do not run "make check" to avoid timeout
+# Download Overture, A++ and P++; compile A++ and P++
+# Note that P++ must be in the source tree, or Overture would fail to compile
 RUN cd $DOCKER_HOME && \
-    git clone --depth 1 -b next https://github.com/unifem/overtureframework.git overture && \
+    git clone --depth 1 https://github.com/unifem/overtureframework.git overture && \
     perl -e 's/https:\/\/github.com\//git@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
     cd $DOCKER_HOME/overture && \
     cd A++P++ && \
-    ./configure --enable-SHARED_LIBS --prefix=$AXX_PREFIX && \
+    export MPI_ROOT=/usr/lib/x86_64-linux-gnu/openmpi && \
+    ./configure --enable-PXX --prefix=$PXX_PREFIX --enable-SHARED_LIBS \
+       --with-mpi-include="-I${MPI_ROOT}/include" \
+       --with-mpi-lib-dirs="-Wl,-rpath,${MPI_ROOT}/lib -L${MPI_ROOT}/lib" \
+       --with-mpi-libs="-lmpi -lmpi_cxx" \
+       --with-mpirun=/usr/bin/mpirun \
+       --without-PADRE && \
     make -j2 && \
     make install
 
 # Compile Overture framework
 WORKDIR $DOCKER_HOME/overture
 
-ENV APlusPlus=$AXX_PREFIX/A++/install \
+ENV APlusPlus=$PXX_PREFIX/P++/install \
+    PPlusPlus=$PXX_PREFIX/P++/install \
     XLIBS=/usr/lib/X11 \
     OpenGL=/usr \
     MOTIF=/usr \
-    HDF=/usr/local/hdf5-${HDF5_VERSION} \
+    HDF=/usr/local/hdf5-${HDF5_VERSION}-openmpi \
     Overture=$DOCKER_HOME/overture/Overture.bin \
     LAPACK=/usr/lib
 
 RUN cd $DOCKER_HOME/overture/Overture && \
-    mkdir $DOCKER_HOME/cad && \
     OvertureBuild=$Overture ./buildOverture && \
     cd $Overture && \
-    ./configure opt linux && \
+    ./configure opt linux parallel cc=mpicc bcc=gcc CC=mpicxx bCC=g++ FC=mpif90 bFC=gfortran && \
     make -j2 && \
     make rapsodi
 

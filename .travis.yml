@@ -6,7 +6,7 @@ sudo: false
 
 env:
   global:
-    - BASE=unifem/openfoam-ccx:latest TAG=next
+    - BASE=unifem/openfoam-ccx:latest TAG=parallel
 
 before_script:
   - docker --version
