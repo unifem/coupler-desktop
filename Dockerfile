@@ -56,7 +56,7 @@ ENV PXX_PREFIX=$DOCKER_HOME/overture/A++P++
 # Note that P++ must be in the source tree, or Overture would fail to compile
 RUN cd $DOCKER_HOME && \
     git clone --depth 1 https://github.com/unifem/overtureframework.git overture && \
-    perl -e 's/https:\/\/github.com\//git@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
+    perl -e 's/https:\/\/github.com\//git\@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
     cd $DOCKER_HOME/overture && \
     cd A++P++ && \
     export MPI_ROOT=/usr/lib/x86_64-linux-gnu/openmpi && \
