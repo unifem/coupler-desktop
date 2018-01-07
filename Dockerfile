@@ -11,9 +11,6 @@ LABEL maintainer "Xiangmin Jiao <xmjiao@gmail.com>"
 ADD image/home $DOCKER_HOME
 
 USER $DOCKER_USER
-WORKDIR $DOCKER_HOME
-
-# Compile Overture framework
 WORKDIR $DOCKER_HOME/overture
 
 ENV APlusPlus=$PXX_PREFIX/P++/install \
@@ -25,6 +22,7 @@ ENV APlusPlus=$PXX_PREFIX/P++/install \
     Overture=$DOCKER_HOME/overture/Overture.bin \
     LAPACK=/usr/lib
 
+# Compile Overture framework
 RUN cd $DOCKER_HOME && \
     git clone --depth 1 https://github.com/unifem/overtureframework.git overture && \
     perl -e 's/https:\/\/github.com\//git\@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
