@@ -5,7 +5,7 @@
 # Xiangmin Jiao <xmjiao@gmail.com>
 
 # Use coupler-desktop:base as base image
-FROM coupler-desktop:base
+FROM unifem/coupler-desktop:base
 LABEL maintainer "Xiangmin Jiao <xmjiao@gmail.com>"
 
 USER root
@@ -36,7 +36,6 @@ RUN add-apt-repository ppa:webupd8team/atom && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 USER $DOCKER_USER
-WORKDIR $DOCKER_HOME/overture
 ENV APlusPlus=$AXX_PREFIX/A++/install \
     XLIBS=/usr/lib/X11 \
     OpenGL=/usr \
