@@ -74,7 +74,7 @@ ENV AXX_PREFIX=$DOCKER_HOME/overture/A++P++.bin
 # Do not run "make check" to avoid timeout
 RUN cd $DOCKER_HOME && \
     git clone --depth 1 -b next https://github.com/unifem/overtureframework.git overture && \
-    perl -e 's/https:\/\/github.com\//git@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
+    perl -e 's/https:\/\/github.com\//git\@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
     cd $DOCKER_HOME/overture && \
     cd A++P++ && \
     ./configure --enable-SHARED_LIBS --prefix=$AXX_PREFIX && \
