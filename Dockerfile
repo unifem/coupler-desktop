@@ -11,7 +11,6 @@ LABEL maintainer "Xiangmin Jiao <xmjiao@gmail.com>"
 ADD image/home $DOCKER_HOME
 
 USER $DOCKER_USER
-WORKDIR $DOCKER_HOME/overture
 
 ENV APlusPlus=$PXX_PREFIX/P++/install \
     PPlusPlus=$PXX_PREFIX/P++/install \
