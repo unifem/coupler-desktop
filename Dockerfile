@@ -13,7 +13,6 @@ WORKDIR /tmp
 
 ADD image/home $DOCKER_HOME
 
-# Install compilers, openmpi, motif and mesa to prepare for Overture
 # Also install Atom for editing
 RUN add-apt-repository ppa:webupd8team/atom && \
     apt-get update && \
@@ -48,7 +47,7 @@ ENV APlusPlus=$AXX_PREFIX/A++/install \
 
 # Compile Overture framework
 RUN RUN cd $DOCKER_HOME && \
-    git clone --depth 1 https://github.com/unifem/overtureframework.git overture && \
+    git clone --depth 1 -b next https://github.com/unifem/overtureframework.git overture && \
     perl -e 's/https:\/\/github.com\//git@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
     \
     mkdir $DOCKER_HOME/cad && \
