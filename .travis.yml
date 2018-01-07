@@ -6,7 +6,7 @@ sudo: false
 
 env:
   global:
-    - BASE=unifem/openfoam-ccx:latest TAG=next
+    - BASE=unifem/coupler-desktop:base TAG=next
 
 before_script:
   - docker --version
@@ -14,9 +14,11 @@ before_script:
   - docker pull $BASE
 
 script:
-  # Build only if the commit range of a push contains Dockerfile or .travis.yml
-  - '[[ "$TRAVIS_EVENT_TYPE" == "push" && -n "$TRAVIS_COMMIT_RANGE" &&
-        -n $(git log --since $(docker inspect $BASE | grep Created | perl -e "s/.+\"([\d-:T]+).+$/\$1/g" -p)) &&
+  # Build only if the BASE image is newer than the last commit,
+  # or the commit range of a push contains Dockerfile or .travis.yml
+  - '[[ -n $(git log --since $(docker inspect $BASE | grep Created |
+             perl -e "s/.+\"([\d-:T]+).+$/\$1/g" -p)) &&
+       "$TRAVIS_EVENT_TYPE" == "push" && -n "$TRAVIS_COMMIT_RANGE" &&
         -z "$(git diff --name-only $TRAVIS_COMMIT_RANGE |
             grep -e Dockerfile -e .travis.yml -e image -e WELCOME)" ]] ||
     (docker build --tag unifem/coupler-desktop:$TAG . &&
