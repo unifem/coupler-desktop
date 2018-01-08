@@ -23,7 +23,7 @@ ENV APlusPlus=$AXX_PREFIX/A++/install \
 # Compile Overture framework
 RUN cd $DOCKER_HOME && \
     git clone --depth 1 https://github.com/unifem/overtureframework.git overture && \
-    perl -e 's/https:\/\/github.com\//git@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
+    perl -e 's/https:\/\/github.com\//git\@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
     \
     mkdir $DOCKER_HOME/cad && \
     cd overture/Overture && \
