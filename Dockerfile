@@ -20,7 +20,7 @@ RUN cd $CG && \
     mkdir -p $CGBUILDPREFIX/bin && \
     ln -s -f $CGBUILDPREFIX/*/bin/* $CGBUILDPREFIX/bin && \
     \
-    echo "export PATH=$Overture/bin:$CGBUILDPREFIX/bin:\$PATH:." >> \
+    echo "export PATH=$CGBUILDPREFIX/bin:\$PATH:." >> \
         $DOCKER_HOME/.profile
 
 USER root
