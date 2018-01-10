@@ -6,7 +6,7 @@ sudo: false
 
 env:
   global:
-    - BASE=unifem/coupler-desktop:base TAG=latest
+    - BASE=unifem/coupler-desktop:framework TAG=latest
 
 before_script:
   - docker --version
@@ -20,7 +20,7 @@ script:
         -z "$(git diff --name-only $TRAVIS_COMMIT_RANGE |
             grep -e Dockerfile -e .travis.yml -e image -e WELCOME)" ]] ||
     (docker build --tag unifem/coupler-desktop:$TAG . &&
-     docker push unifem/coupler-desktop &&
+     docker push unifem/coupler-desktop:$TAG &&
      touch success)'
   # Test startup scripts
   - './coupler_desktop.py -d -n -t $TAG && docker stop $(docker ps -q) &&
