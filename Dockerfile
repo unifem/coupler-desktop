@@ -17,7 +17,7 @@ ENV APlusPlus=$PXX_PREFIX/P++/install \
     XLIBS=/usr/lib/X11 \
     OpenGL=/usr \
     MOTIF=/usr \
-    HDF=/usr/local/hdf5-${HDF5_VERSION}-openmpi \
+    HDF=/usr/lib/hdf5-serial \
     Overture=$DOCKER_HOME/overture/Overture.bin \
     LAPACK=/usr/lib
 
