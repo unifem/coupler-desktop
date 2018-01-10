@@ -26,9 +26,9 @@ RUN cd $CG && \
     make -j2 usePETSc=on OV_USE_PETSC_3=1 libCommon && \
     make -j2 usePETSc=on OV_USE_PETSC_3=1 cgad cgcns cgins cgasf cgsm cgmp && \
     mkdir -p $CGBUILDPREFIX/bin && \
-    ln -s -f $CGBUILDPREFIX/*/bin/* $CGBUILDPREFIX/bin
-
-RUN echo "export PATH=$CGBUILDPREFIX/bin:\$PATH:." >> \
+    ln -s -f $CGBUILDPREFIX/*/bin/* $CGBUILDPREFIX/bin && \
+    \
+    echo "export PATH=$CGBUILDPREFIX/bin:\$PATH:." >> \
         $DOCKER_HOME/.profile
 
 USER root
