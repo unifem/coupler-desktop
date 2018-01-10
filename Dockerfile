@@ -1,5 +1,5 @@
-# Builds a Docker image with OpenFOAM, Calculix and Overture, based on
-# Ubuntu 17.10 for multiphysics coupling
+# Builds a Docker image with OpenFOAM, Calculix and Overture (serial
+# with PETSc 3.8.x), based on Ubuntu 17.10 for multiphysics coupling
 #
 # Authors:
 # Xiangmin Jiao <xmjiao@gmail.com>
@@ -11,40 +11,20 @@ LABEL maintainer "Xiangmin Jiao <xmjiao@gmail.com>"
 USER root
 WORKDIR /tmp
 
-ADD image/home $DOCKER_HOME
-
-# Also install Atom for editing
-RUN add-apt-repository ppa:webupd8team/atom && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-      atom && \
-    \
-    pip install -U autopep8 && \
-    apm install \
-        language-docker \
-        autocomplete-python \
-        git-plus \
-        merge-conflicts \
-        split-diff \
-        platformio-ide-terminal \
-        intentions \
-        busy-signal \
-        python-autopep8 \
-        clang-format && \
-    chown -R $DOCKER_USER:$DOCKER_GROUP $DOCKER_HOME && \
-    \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 USER $DOCKER_USER
-ENV APlusPlus=$AXX_PREFIX/A++/install \
-    XLIBS=/usr/lib/X11 \
+
+ENV XLIBS=/usr/lib/X11 \
     OpenGL=/usr \
     MOTIF=/usr \
+    LAPACK=/usr/lib \
+    \
+    APlusPlus=$AXX_PREFIX/A++/install \
     HDF=/usr/local/hdf5-${HDF5_VERSION} \
     Overture=$DOCKER_HOME/overture/Overture.bin \
-    LAPACK=/usr/lib
+    PETSC_DIR=/usr/local/petsc-$PETSC_VERSION \
+    PETSC_LIB=/usr/local/petsc-$PETSC_VERSION/lib
 
-# Compile Overture framework
+# Compile Overture framework in serial
 RUN cd $DOCKER_HOME && \
     git clone --depth 1 -b next https://github.com/unifem/overtureframework.git overture && \
     perl -e 's/https:\/\/github.com\//git\@github.com:/g' -p -i $DOCKER_HOME/overture/.git/config && \
@@ -53,25 +33,27 @@ RUN cd $DOCKER_HOME && \
     cd overture/Overture && \
     OvertureBuild=$Overture ./buildOverture && \
     cd $Overture && \
-    ./configure opt linux && \
+    ./configure opt linux petsc && \
+    make -j2 && \
+    make rapsodi && \
+    \
+    echo "export PATH=$Overture/bin:\$PATH:." >> \
+        $DOCKER_HOME/.profile
+
+# Compile Overture framework in parallel
+RUN export APlusPlus=$PXX_PREFIX/A++/install && \
+    export PPlusPlus=$PXX_PREFIX/P++/install && \
+    export HDF=/usr/local/hdf5-${HDF5_VERSION}-openmpi && \
+    export Overture=$DOCKER_HOME/overture/Overture.par && \
+    export PETSC_DIR=/usr/lib/petscdir/3.7.6/x86_64-linux-gnu-real && \
+    export PETSC_LIB=/usr/lib/x86_64-linux-gnu && \
+    \
+    cd $DOCKER_HOME/overture/Overture && \
+    OvertureBuild=$Overture ./buildOverture && \
+    cd $Overture && \
+    ./configure opt linux petsc parallel cc=mpicc bcc=gcc CC=mpicxx bCC=g++ FC=mpif90 bFC=gfortran && \
     make -j2 && \
     make rapsodi
-
-# Compile CG
-ENV CG=$DOCKER_HOME/overture/cg
-ENV CGBUILDPREFIX=$DOCKER_HOME/overture/cg.bin
-RUN cd $DOCKER_HOME/overture && \
-    \
-    cd $CG && \
-    make -j2 usePETSc=off libCommon && \
-    make -j2 usePETSc=off cgad cgcns cgins cgasf cgsm cgmp && \
-    mkdir -p $CGBUILDPREFIX/bin && \
-    ln -s -f $CGBUILDPREFIX/*/bin/* $CGBUILDPREFIX/bin
-
-RUN echo "export PATH=$Overture/bin:$CGBUILDPREFIX/bin:\$PATH:." >> \
-        $DOCKER_HOME/.profile && \
-    echo "export LD_LIBRARY_PATH=$APlusPlus/lib:$Overture/lib:$CG/cns/lib:$CG/ad/lib:$CG/asf/lib:$CG/ins/lib:$CG/common/lib:$CG/sm/lib:$CG/mp/lib:\$LD_LIBRARY_PATH" >> \
-        $DOCKER_HOME/.profile
 
 WORKDIR $DOCKER_HOME
 USER root
