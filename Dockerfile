@@ -1,5 +1,5 @@
-# Builds a Docker image with OpenFOAM, Calculix and Overture, based on
-# Ubuntu 17.10 for multiphysics coupling
+# Builds the base Docker image with OpenFOAM, Calculix and Overture, 
+# based on Ubuntu 17.10 for multiphysics coupling
 #
 # Authors:
 # Xiangmin Jiao <xmjiao@gmail.com>
@@ -24,6 +24,7 @@ RUN apt-get update && \
       gfortran \
       openmpi-bin \
       libopenmpi-dev \
+      libopenblas-dev \
       \
       libmotif-dev \
       libgl1-mesa-dev \
@@ -65,6 +66,20 @@ RUN cd /tmp && \
     ./configure --enable-shared --enable-parallel --prefix /usr/local/hdf5-${HDF5_VERSION}-openmpi && \
     make -j2 && make install && \
     \
+    rm -rf /tmp/*
+
+ENV PETSC_VERSION=3.8.3
+# Build PETSc in serial
+RUN cd /tmp && \
+    curl -L http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-${PETSC_VERSION}.tar.gz | \
+        tar zx && \
+    cd petsc-${PETSC_VERSION} && \
+    unset PETSC_DIR && \
+    ./configure --prefix=/usr/local/petsc-${PETSC_VERSION} --with-mpi=0 \
+           --with-debugging=0 --with-fortran=0 --download-superlu  && \
+    make MAKE_NP=2 && \
+    sudo make install && \
+    make PETSC_DIR=/usr/local/petsc-3.8.3 PETSC_ARCH="" test && \
     rm -rf /tmp/*
 
 USER $DOCKER_USER
