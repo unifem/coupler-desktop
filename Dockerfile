@@ -41,7 +41,7 @@ RUN cd $DOCKER_HOME && \
         $DOCKER_HOME/.profile
 
 # Compile Overture framework in parallel
-RUN export APlusPlus=$PXX_PREFIX/A++/install && \
+RUN export APlusPlus=$PXX_PREFIX/P++/install && \
     export PPlusPlus=$PXX_PREFIX/P++/install && \
     export HDF=/usr/local/hdf5-${HDF5_VERSION}-openmpi && \
     export Overture=$DOCKER_HOME/overture/Overture.par && \
