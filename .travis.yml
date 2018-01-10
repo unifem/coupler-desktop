@@ -24,7 +24,4 @@ script:
     (docker build --tag unifem/coupler-desktop:$TAG . &&
      docker push unifem/coupler-desktop &&
      touch success)'
-  # Test startup scripts
-  - './coupler_desktop.py -d -n -t $TAG && docker stop $(docker ps -q) &&
-     ./coupler_jupyter.py -d -n -t $TAG && docker stop $(docker ps -q)'
   - docker images

@@ -1,6 +1,6 @@
 # Docker Image for Coupler
-This Docker image provides the Ubuntu 16.04 environment with X Windows for
-multiphysics coupling.
+This Docker image provides the base image for Ubuntu 17.10 environment 
+with X Windows for multiphysics coupling.
 
 This image runs the lightweight LXDE Windows Manager, and has FEniCS 17.1.0,
 SfePy, CalculiX, MeshDB and Mapper preinstalled. The X Windows will display

@@ -14,8 +14,6 @@ LABEL maintainer "Xiangmin Jiao <xmjiao@gmail.com>"
 USER root
 WORKDIR /tmp
 
-ADD image/home $DOCKER_HOME
-
 # Install compilers, openmpi, motif and mesa to prepare for Overture
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
