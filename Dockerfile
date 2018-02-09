@@ -14,7 +14,7 @@ USER $DOCKER_USER
 ENV CG=$DOCKER_HOME/overture/cg
 ENV CGBUILDPREFIX=$DOCKER_HOME/overture/cg.bin
 
-RUN cd $CG && \
+RUN cd $CG && git pull https master && \
     make -j2 usePETSc=on OV_USE_PETSC_3=1 libCommon && \
     make -j2 usePETSc=on OV_USE_PETSC_3=1 cgad cgcns cgins cgasf cgsm cgmp && \
     mkdir -p $CGBUILDPREFIX/bin && \
