@@ -7,6 +7,4 @@ before_script:
 
 script:
   - './ci-util/build-docker.sh &&
-    ./coupler_desktop.py -d -n && docker stop $(docker ps -q) &&
-    ./coupler_jupyter.py -d -n && docker stop $(docker ps -q) &&
     ./ci-util/trigger-via-api.sh'
