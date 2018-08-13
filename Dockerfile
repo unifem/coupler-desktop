@@ -38,9 +38,9 @@ RUN apt-get update && \
       liblapack3 \
       liblapack-dev && \
     \
-    curl -O http://mirror.mcs.anl.gov/pub/ubuntu/pool/main/libx/libxp/libxp6_1.0.2-1ubuntu1_amd64.deb && \
+    curl -O http://mirrors.kernel.org/ubuntu/pool/main/libx/libxp/libxp6_1.0.2-1ubuntu1_amd64.deb && \
     dpkg -i libxp6_1.0.2-1ubuntu1_amd64.deb && \
-    curl -O http://mirror.mcs.anl.gov/pub/ubuntu/pool/main/libx/libxp/libxp-dev_1.0.2-1ubuntu1_amd64.deb && \
+    curl -O http://mirrors.kernel.org/ubuntu/pool/main/libx/libxp/libxp-dev_1.0.2-1ubuntu1_amd64.deb && \
     dpkg -i libxp-dev_1.0.2-1ubuntu1_amd64.deb && \
     \
     ln -s -f /usr/bin/make /usr/bin/gmake && \
