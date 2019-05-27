@@ -54,7 +54,7 @@ RUN apt-get update && \
 # HDF5-1.10.x in Ubuntu 17.10 is incompatible with Overture
 ENV HDF5_VERSION=1.8.20
 RUN cd /tmp && \
-    curl -L https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-${HDF5_VERSION}.tar.gz | \
+    curl -L https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.20/src/hdf5-${HDF5_VERSION}.tar.gz | \
         tar zx && \
     cd hdf5-${HDF5_VERSION} && \
     ./configure --enable-shared --prefix /usr/local/hdf5-${HDF5_VERSION} && \
