@@ -1,5 +1,5 @@
 # Builds a Docker image with OpenFOAM, Calculix and Overture, based on
-# Ubuntu 17.10 for multiphysics coupling
+# Ubuntu 18.04 for multiphysics coupling
 #
 # Authors:
 # Xiangmin Jiao <xmjiao@gmail.com>
@@ -17,7 +17,7 @@ ENV APlusPlus=$PXX_PREFIX/P++/install \
     PPlusPlus=$PXX_PREFIX/P++/install \
     HDF=/usr/local/hdf5-${HDF5_VERSION}-openmpi \
     Overture=$DOCKER_HOME/overture/Overture.par \
-    PETSC_DIR=/usr/lib/petscdir/3.7.6/x86_64-linux-gnu-real \
+    PETSC_DIR=/usr/lib/petscdir/3.7 \
     PETSC_LIB=/usr/lib/x86_64-linux-gnu \
     CG=$DOCKER_HOME/overture/cg \
     CGBUILDPREFIX=$DOCKER_HOME/overture/cg.bin
